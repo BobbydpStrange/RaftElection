@@ -21,17 +21,18 @@ public class Node
         log = new List<Tuple<int, string>>();
         votedFor = new Dictionary<int, Guid>();
         currentTerm = 0 ;
+        timeInterval = new Random().Next(500, 1000);
     }
     public void HeartBeatReceived(string message)
     {
-        Console.WriteLine("updating timespan");
+        //Console.WriteLine("updating timespan");
         int randomTime = new Random().Next(100, 1000);
         timeInterval += randomTime;
         LogInfo($"{message}");
     }
     private void LogInfo(string message)
     {
-        Console.WriteLine($"logging {message}");
+        //Console.WriteLine($"logging {message}");
         //make and log to a file with the guid as the name.
         using (StreamWriter sw = File.AppendText(fileName))
         {
@@ -52,7 +53,7 @@ public class Node
                     Candidate();
                     break;
                 case "leader":
-                    Console.WriteLine("there is a new leader said the node");
+                    //Console.WriteLine("there is a new leader said the node");
                     Leader(true);
                     break;
             }
@@ -75,7 +76,7 @@ public class Node
         {
 
         }
-        Console.WriteLine("old leader stopped running");
+        //Console.WriteLine("old leader stopped running");
         state = "follower";
 
     }

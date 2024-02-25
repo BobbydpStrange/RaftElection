@@ -1,6 +1,7 @@
 ﻿namespace RaftElection;
 using System;
 using System.Timers;
+using System.Xml.Linq;
 
 /*___________List_________
  *      multi threaded simulation of election. 
@@ -39,16 +40,7 @@ class Program
         allNodes.Add(node2);
         allNodes.Add(node3);
 
-        Thread thread1 = new Thread(node1.Run);
-        Thread thread2 = new Thread(node2.Run);
-        Thread thread3 = new Thread(node3.Run);
-        thread1.Name = "node1";
-        thread2.Name = "node2";
-        thread3.Name = "node3";
-
-        thread1.Start();
-        thread2.Start();
-        thread3.Start();
+       (Thread thread1, Thread thread2,Thread thread3) = StartupThreads(node1, node2, node3);
 
         Timer heartbeatTimer = new Timer(500);
         heartbeatTimer.Elapsed += (sender, e) => HeartBeat(leaderid,allNodes);
@@ -78,7 +70,7 @@ class Program
                         }
                         if (voteCount >= 2)
                         {
-                            Console.WriteLine("new leader");
+                            //Console.WriteLine("new leader");
                             if(leaderNode != null)
                             {
                                 leaderNode.Leader(false);
@@ -91,6 +83,8 @@ class Program
                                 if (voter != node && voter.state != "follower" && voter.state != "leader")
                                     voter.state = "follower";
                             }
+                            ( thread1,  thread2,  thread3) = StartupThreads(node1, node2, node3);
+                            Console.WriteLine($"Term: {node.currentTerm}");
                         }
                         switch(checkedTh)
                         {
@@ -120,11 +114,25 @@ class Program
         {
             if (!thread.IsAlive)
             {
-                Console.WriteLine("thread finished");
+                //Console.WriteLine("thread finished");
                 return thread.Name;
             }
         }
         return null;
+    }
+    static (Thread,Thread,Thread) StartupThreads (Node node1, Node node2, Node node3)
+    {
+        Thread thread1 = new Thread(node1.Run);
+        Thread thread2 = new Thread(node2.Run);
+        Thread thread3 = new Thread(node3.Run);
+        thread1.Name = "node1";
+        thread2.Name = "node2";
+        thread3.Name = "node3";
+
+        thread1.Start();
+        thread2.Start();
+        thread3.Start();
+        return (thread1,thread2, thread3);
     }
     static void HeartBeat(Guid leaderid,List<Node> allNodes)
     {
