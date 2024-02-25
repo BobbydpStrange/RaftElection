@@ -70,21 +70,21 @@ class Program
                         if (voteCount >= 2)
                         {
                             node.state = "leader";
-                            switch(checkedTh)
-                            {
-                                case "node1":
-                                    thread1 = new Thread(node.Run);
-                                    thread1.Start();
-                                    break;
-                                case "node2":
-                                    thread2 = new Thread(node.Run);
-                                    thread2.Start();
-                                    break;
-                                case "node3":
-                                    thread3 = new Thread(node.Run);
-                                    thread3.Start();
-                                    break;
-                            }
+                        }
+                        switch(checkedTh)
+                        {
+                            case "node1":
+                                thread1 = new Thread(node.Run);
+                                thread1.Start();
+                                break;
+                            case "node2":
+                                thread2 = new Thread(node.Run);
+                                thread2.Start();
+                                break;
+                            case "node3":
+                                thread3 = new Thread(node.Run);
+                                thread3.Start();
+                                break;
                         }
 
                     }
@@ -92,7 +92,10 @@ class Program
             }
         }
     }
+    static void RestartThread(string node)
+    {
 
+    }
     static string CheckThreads(params Thread[] threads)
     {
         foreach( var thread in threads)
