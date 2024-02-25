@@ -39,13 +39,12 @@ public class Node
     }
     public void Run()
     {
-        while(true)
-        {
             switch(state)
             {
                 case "follower":
-                    Thread.Sleep(timeInterval);
                     Follower();
+                    Thread.Sleep(timeInterval);
+                    state = "candidate";
                     break;
                 case "candidate":
                     Thread.Sleep(timeInterval);
@@ -55,13 +54,11 @@ public class Node
                     Leader();
                     break;
             }
-
-        }
     }
 
     private void Follower()
     {
-        LogInfo("Im now a Follower");
+        LogInfo("Im a Follower");
     }
     private void Candidate() 
     {
@@ -72,6 +69,10 @@ public class Node
     private void Leader() 
     { 
         LogInfo("Im now the leader");
+        while (true)
+        {
+
+        }
 
     }
     public Boolean Vote(int term, Guid Candidateid)

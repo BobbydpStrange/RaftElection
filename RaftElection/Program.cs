@@ -61,11 +61,9 @@ class Program
 
                         foreach (var follower in allNodes)
                         {
-                            if (follower.nodeid != candidateId)
-                            {
-                                bool voteResult = follower.Vote(term, candidateId);
-                                voteCount++;
-                            }
+                           bool voteResult = follower.Vote(term, candidateId);
+                           voteCount++;
+                                  
                         }
                         if (voteCount >= 2)
                         {
