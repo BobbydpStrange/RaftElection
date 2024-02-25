@@ -1,5 +1,6 @@
-﻿using System;
-namespace RaftElection;
+﻿namespace RaftElection;
+using System;
+using System.Timers;
 
 /*___________List_________
  *      multi threaded simulation of election. 
@@ -27,6 +28,8 @@ class Program
     static void Main(string[] args)
     {
         List<Node> allNodes = new List<Node>();
+        Guid leaderid= Guid.Empty;
+        Node leaderNode = null;
 
         Node node1 = new Node(Guid.NewGuid(),"follower");
         Node node2 = new Node(Guid.NewGuid(),"follower");
@@ -39,11 +42,19 @@ class Program
         Thread thread1 = new Thread(node1.Run);
         Thread thread2 = new Thread(node2.Run);
         Thread thread3 = new Thread(node3.Run);
-
+        thread1.Name = "node1";
+        thread2.Name = "node2";
+        thread3.Name = "node3";
 
         thread1.Start();
         thread2.Start();
         thread3.Start();
+
+        Timer heartbeatTimer = new Timer(500);
+        heartbeatTimer.Elapsed += (sender, e) => HeartBeat(leaderid,allNodes);
+        heartbeatTimer.AutoReset = true;
+        heartbeatTimer.Enabled = true;
+
         while (true)
         {
 
@@ -59,15 +70,27 @@ class Program
                         Guid candidateId = node.nodeid;
                         int term = node.currentTerm + 1;
 
-                        foreach (var follower in allNodes)
+                        foreach (var voter in allNodes)
                         {
-                           bool voteResult = follower.Vote(term, candidateId);
+                           bool voteResult = voter.Vote(term, candidateId);
                            voteCount++;
                                   
                         }
                         if (voteCount >= 2)
                         {
+                            Console.WriteLine("new leader");
+                            if(leaderNode != null)
+                            {
+                                leaderNode.Leader(false);
+                            }
                             node.state = "leader";
+                            leaderid = node.nodeid;
+                            leaderNode = node;
+                            foreach(var voter in allNodes)
+                            {
+                                if (voter != node && voter.state != "follower" && voter.state != "leader")
+                                    voter.state = "follower";
+                            }
                         }
                         switch(checkedTh)
                         {
@@ -90,19 +113,27 @@ class Program
             }
         }
     }
-    static void RestartThread(string node)
-    {
-
-    }
+   
     static string CheckThreads(params Thread[] threads)
     {
         foreach( var thread in threads)
         {
-            if (thread.Join(0))
+            if (!thread.IsAlive)
             {
+                Console.WriteLine("thread finished");
                 return thread.Name;
             }
         }
         return null;
+    }
+    static void HeartBeat(Guid leaderid,List<Node> allNodes)
+    {
+        if (leaderid != Guid.Empty)
+        {
+            foreach (var node in allNodes)
+            {
+                node.HeartBeatReceived($"heartbeat from leader :{leaderid}");
+            }
+        }
     }
 }

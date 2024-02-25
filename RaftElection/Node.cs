@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace RaftElection;
-
 public class Node
 {
     public Guid nodeid;
@@ -25,12 +24,14 @@ public class Node
     }
     public void HeartBeatReceived(string message)
     {
+        Console.WriteLine("updating timespan");
         int randomTime = new Random().Next(100, 1000);
         timeInterval += randomTime;
         LogInfo($"{message}");
     }
     private void LogInfo(string message)
     {
+        Console.WriteLine($"logging {message}");
         //make and log to a file with the guid as the name.
         using (StreamWriter sw = File.AppendText(fileName))
         {
@@ -51,7 +52,8 @@ public class Node
                     Candidate();
                     break;
                 case "leader":
-                    Leader();
+                    Console.WriteLine("there is a new leader said the node");
+                    Leader(true);
                     break;
             }
     }
@@ -66,13 +68,15 @@ public class Node
         LogInfo($"Voted for node: {nodeid}");
 
     }
-    private void Leader() 
+    public void Leader(bool yourLeader) 
     { 
         LogInfo("Im now the leader");
-        while (true)
+        while (yourLeader)
         {
 
         }
+        Console.WriteLine("old leader stopped running");
+        state = "follower";
 
     }
     public Boolean Vote(int term, Guid Candidateid)
