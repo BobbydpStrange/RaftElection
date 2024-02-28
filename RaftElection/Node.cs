@@ -14,14 +14,23 @@ public class Node
     private List<Tuple<int, string>> log;//term, action
     private Dictionary<int, Guid> votedFor;//term, id for who they votedfor
     public int currentTerm;
-    public Node(Guid nodeid, string state)
+    public bool isTestinng;
+    public int setTimer;
+    public string Name;
+    public bool isHealthy;
+    public Node(Guid nodeid, string state, bool testing, int setTimer,string Name, bool isHealthy)
     {
         fileName = $"{nodeid}.log";
+        this.Name = Name ;
         this.state = state ;
+        this.isTestinng = testing;
+        this.isHealthy = isHealthy ;
         log = new List<Tuple<int, string>>();
         votedFor = new Dictionary<int, Guid>();
         currentTerm = 0 ;
-        timeInterval = new Random().Next(500, 1000);
+        if (!testing) { timeInterval = new Random().Next(500, 1000); }
+        else { timeInterval = setTimer; }
+        
     }
     public void HeartBeatReceived(string message)
     {
@@ -82,14 +91,17 @@ public class Node
     }
     public Boolean Vote(int term, Guid Candidateid)
     {
-        HeartBeatReceived("New Election Vote");
-        
-        if (currentTerm < term)
+        if(isHealthy)
         {
-            currentTerm = term ;
-            LogInfo($"Im voting for Candidate {Candidateid}.");
-            votedFor.Add(term, Candidateid);
-            return true;
+            HeartBeatReceived("New Election Vote");
+
+            if (currentTerm < term)
+            {
+                currentTerm = term;
+                LogInfo($"Im voting for Candidate {Candidateid}.");
+                votedFor.Add(term, Candidateid);
+                return true;
+            }
         }
         return false;
     }

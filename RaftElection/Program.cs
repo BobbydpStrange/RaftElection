@@ -1,5 +1,7 @@
 ﻿namespace RaftElection;
 using System;
+using System.Diagnostics.Metrics;
+using System.Threading;
 using System.Timers;
 using System.Xml.Linq;
 
@@ -24,25 +26,26 @@ using System.Xml.Linq;
  *      if missing entries the leader sends the missing ones with their heartbeat
  */
 
-class Program
+public class Program
 {
     static void Main(string[] args)
     {
         List<Node> allNodes = new List<Node>();
+        List<Thread> allThreads = new List<Thread>();
         Guid leaderid= Guid.Empty;
         Node leaderNode = null;
 
-        Node node1 = new Node(Guid.NewGuid(),"follower");
-        Node node2 = new Node(Guid.NewGuid(),"follower");
-        Node node3 = new Node(Guid.NewGuid(), "follower");
+        Node node1 = new Node(Guid.NewGuid(),"follower", false,0, "node1",true);
+        Node node2 = new Node(Guid.NewGuid(),"follower",false, 0,"node2", true);
+        Node node3 = new Node(Guid.NewGuid(), "follower", false,0, "node3", true);
 
         allNodes.Add(node1);
         allNodes.Add(node2);
         allNodes.Add(node3);
+        
+       allThreads = StartupThreads(allNodes);
 
-       (Thread thread1, Thread thread2,Thread thread3) = StartupThreads(node1, node2, node3);
-
-        Timer heartbeatTimer = new Timer(500);
+        System.Timers.Timer heartbeatTimer = new System.Timers.Timer(500);
         heartbeatTimer.Elapsed += (sender, e) => HeartBeat(leaderid,allNodes);
         heartbeatTimer.AutoReset = true;
         heartbeatTimer.Enabled = true;
@@ -50,89 +53,92 @@ class Program
         while (true)
         {
 
-            string checkedTh = CheckThreads(thread1, thread2, thread3);
+            string checkedTh = CheckThreads(allThreads, allNodes);
 
             if (!string.IsNullOrEmpty(checkedTh))
             {
                 foreach (var node in allNodes)
                 {
-                    if (node.state == "candidate")
-                    {
-                        int voteCount = 0;
-                        Guid candidateId = node.nodeid;
-                        int term = node.currentTerm + 1;
-
-                        foreach (var voter in allNodes)
-                        {
-                           bool voteResult = voter.Vote(term, candidateId);
-                           voteCount++;
-                                  
-                        }
-                        if (voteCount >= 2)
-                        {
-                            //Console.WriteLine("new leader");
-                            if(leaderNode != null)
-                            {
-                                leaderNode.Leader(false);
-                            }
-                            node.state = "leader";
-                            leaderid = node.nodeid;
-                            leaderNode = node;
-                            foreach(var voter in allNodes)
-                            {
-                                if (voter != node && voter.state != "follower" && voter.state != "leader")
-                                    voter.state = "follower";
-                            }
-                            ( thread1,  thread2,  thread3) = StartupThreads(node1, node2, node3);
-                            Console.WriteLine($"Term: {node.currentTerm}");
-                        }
-                        switch(checkedTh)
-                        {
-                            case "node1":
-                                thread1 = new Thread(node.Run);
-                                thread1.Start();
-                                break;
-                            case "node2":
-                                thread2 = new Thread(node.Run);
-                                thread2.Start();
-                                break;
-                            case "node3":
-                                thread3 = new Thread(node.Run);
-                                thread3.Start();
-                                break;
-                        }
-
-                    }
+                    allNodes = StartVoteing(node, allNodes, leaderid, leaderNode, checkedTh);
                 }
             }
         }
     }
-   
-    static string CheckThreads(params Thread[] threads)
+    public static List<Node> StartVoteing (Node node, List<Node> allNodes, Guid leaderid, Node leaderNode, string checkedTh)
     {
-        foreach( var thread in threads)
+        if (node.state == "candidate")
         {
-            if (!thread.IsAlive)
+            int voteCount = 0;
+            Guid candidateId = node.nodeid;
+            int term = node.currentTerm + 1;
+            var allThreads = new List<Thread>();
+
+            foreach (var voter in allNodes)
             {
-                //Console.WriteLine("thread finished");
-                return thread.Name;
+                bool voteResult = voter.Vote(term, candidateId);
+                voteCount++;
+
+            }
+            if (voteCount >= 2)
+            {
+                //Console.WriteLine("new leader");
+                if (leaderNode != null)
+                {
+                    leaderNode.Leader(false);
+                }
+                node.state = "leader";
+                leaderid = node.nodeid;
+                leaderNode = node;
+                foreach (var voter in allNodes)
+                {
+                    if (voter.state != "follower" && voter.Name != node.Name|| voter.nodeid != leaderid)
+                        voter.state = "follower";
+
+                    Console.WriteLine($"node: {voter} is now {voter.state}");
+                }
+
+                allThreads = StartupThreads(allNodes);
+                Console.WriteLine($"Term: {node.currentTerm}");
+            }
+            if ( checkedTh == $"{node}")
+            {
+                for(int i = 0; i < allThreads.Count; i++)
+                {
+                    if (allThreads[i].Name == $"{node}")
+                    {
+                        allThreads[i] = new Thread(node.Run);
+                        allThreads[i].Start();
+                    }
+                }
+            }
+            
+
+        }
+        return allNodes;
+    }
+    public static string CheckThreads(List<Thread> threads,List<Node> nodes)
+    {
+        for (int i = 0; i < threads.Count; i++)
+        {
+            if (!threads[i].IsAlive && nodes[i].state == "candidate")
+            {
+                return threads[i].Name;
             }
         }
+
         return null;
     }
-    static (Thread,Thread,Thread) StartupThreads (Node node1, Node node2, Node node3)
+    public static List<Thread> StartupThreads (List<Node> allNodes)
     {
-        Thread thread1 = new Thread(node1.Run);
-        Thread thread2 = new Thread(node2.Run);
-        Thread thread3 = new Thread(node3.Run);
-        thread1.Name = "node1";
-        thread2.Name = "node2";
-        thread3.Name = "node3";
-
-        thread1.Start();
-        thread2.Start();
-        thread3.Start();
-        return (thread1,thread2, thread3);
+        List<Thread> threads = new List<Thread>();
+        foreach(var node in allNodes)
+        {
+            Thread t = new Thread(node.Run);
+            t.Name = $"{node.Name}";
+            threads.Add(t);
+            t.Start();
+        }
+        return (threads);
     }
     static void HeartBeat(Guid leaderid,List<Node> allNodes)
     {
