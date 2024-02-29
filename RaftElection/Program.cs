@@ -34,6 +34,7 @@ public class Program
         List<Thread> allThreads = new List<Thread>();
         Guid leaderid= Guid.Empty;
         Node leaderNode = null;
+        int leaderTerm = 0;
 
         Node node1 = new Node(Guid.NewGuid(),"follower", false,0, "node1",true);
         Node node2 = new Node(Guid.NewGuid(),"follower",false, 0,"node2", true);
@@ -46,7 +47,7 @@ public class Program
        allThreads = StartupThreads(allNodes);
 
         System.Timers.Timer heartbeatTimer = new System.Timers.Timer(500);
-        heartbeatTimer.Elapsed += (sender, e) => HeartBeat(leaderid,allNodes);
+        heartbeatTimer.Elapsed += (sender, e) => HeartBeat(leaderid,allNodes,leaderNode);
         heartbeatTimer.AutoReset = true;
         heartbeatTimer.Enabled = true;
 
@@ -59,12 +60,12 @@ public class Program
             {
                 foreach (var node in allNodes)
                 {
-                    allNodes = StartVoteing(node, allNodes, leaderid, leaderNode, checkedTh);
+                    allNodes = StartVoteing(node, allNodes, leaderid, leaderNode, checkedTh, leaderTerm);
                 }
             }
         }
     }
-    public static List<Node> StartVoteing (Node node, List<Node> allNodes, Guid leaderid, Node leaderNode, string checkedTh)
+    public static List<Node> StartVoteing (Node node, List<Node> allNodes, Guid leaderid, Node leaderNode, string checkedTh, int leaderTerm)
     {
         if (node.state == "candidate")
         {
@@ -72,14 +73,23 @@ public class Program
             Guid candidateId = node.nodeid;
             int term = node.currentTerm + 1;
             var allThreads = new List<Thread>();
+            int majority = ((allNodes.Count()) / 2) +1;
 
             foreach (var voter in allNodes)
             {
-                bool voteResult = voter.Vote(term, candidateId);
-                voteCount++;
+                if(voter.Name == node.Name || voter.state == "candidate")
+                {
+                    voter.Candidate();
+                    voteCount++;
+                }
+                else
+                {
+                    bool voteResult = voter.Vote(term, candidateId);
+                    if (voteResult) { voteCount++; }
+                }
 
             }
-            if (voteCount >= 2)
+            if (voteCount >= majority)
             {
                 //Console.WriteLine("new leader");
                 if (leaderNode != null)
@@ -89,10 +99,14 @@ public class Program
                 node.state = "leader";
                 leaderid = node.nodeid;
                 leaderNode = node;
+                leaderTerm = node.currentTerm;
                 foreach (var voter in allNodes)
                 {
                     if (voter.state != "follower" && voter.Name != node.Name|| voter.nodeid != leaderid)
+                    {
                         voter.state = "follower";
+                        node.currentTerm = leaderTerm;
+                    }
 
                     Console.WriteLine($"node: {voter} is now {voter.state}");
                 }
@@ -140,9 +154,9 @@ public class Program
         }
         return (threads);
     }
-    static void HeartBeat(Guid leaderid,List<Node> allNodes)
+    static void HeartBeat(Guid leaderid,List<Node> allNodes, Node leader)
     {
-        if (leaderid != Guid.Empty)
+        if (leaderid != Guid.Empty || !leader.isHealthy)
         {
             foreach (var node in allNodes)
             {

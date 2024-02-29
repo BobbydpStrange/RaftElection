@@ -34,10 +34,13 @@ public class Node
     }
     public void HeartBeatReceived(string message)
     {
-        //Console.WriteLine("updating timespan");
-        int randomTime = new Random().Next(100, 1000);
-        timeInterval += randomTime;
-        LogInfo($"{message}");
+        if(isHealthy)
+        {
+            //Console.WriteLine("updating timespan");
+            int randomTime = new Random().Next(100, 1000);
+            timeInterval += randomTime;
+            LogInfo($"{message}");
+        }
     }
     private void LogInfo(string message)
     {
@@ -50,6 +53,7 @@ public class Node
     }
     public void Run()
     {
+        if (isHealthy && !isTestinng) { 
             switch(state)
             {
                 case "follower":
@@ -66,42 +70,48 @@ public class Node
                     Leader(true);
                     break;
             }
+        }
     }
 
     private void Follower()
     {
         LogInfo("Im a Follower");
     }
-    private void Candidate() 
+    public void Candidate()
     {
         LogInfo("Im now a Candidate lets vote!");
         LogInfo($"Voted for node: {nodeid}");
+        currentTerm = currentTerm +1;
 
     }
     public void Leader(bool yourLeader) 
     { 
         LogInfo("Im now the leader");
-        while (yourLeader)
+        if (!isTestinng)
         {
+            while (yourLeader)
+            {
 
+            }
+            //Console.WriteLine("old leader stopped running");
+            state = "follower";
         }
-        //Console.WriteLine("old leader stopped running");
-        state = "follower";
 
     }
     public Boolean Vote(int term, Guid Candidateid)
     {
-        if(isHealthy)
+        if(isHealthy && state == "follower")
         {
             HeartBeatReceived("New Election Vote");
 
-            if (currentTerm < term)
+            if (currentTerm < term && currentTerm != term)
             {
                 currentTerm = term;
                 LogInfo($"Im voting for Candidate {Candidateid}.");
                 votedFor.Add(term, Candidateid);
                 return true;
             }
+            else { return false; }
         }
         return false;
     }
