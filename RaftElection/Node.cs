@@ -12,7 +12,7 @@ public class Node
     private int timeInterval;
     public string state;
     private List<Tuple<int, string>> log;//term, action
-    private Dictionary<int, Guid> votedFor;//term, id for who they votedfor
+    public Dictionary<int, Guid> votedFor;//term, id for who they votedfor
     private Dictionary<string, Tuple<int, int>> history;// string -> term# ,log index
     public int currentTerm;
     public bool isTestinng;

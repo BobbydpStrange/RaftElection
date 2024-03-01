@@ -58,4 +58,15 @@ public class Gateway
         }
         return false;
     }
+    public bool CompareAndSwap(Node follower, Node leaderNode)
+    {
+        if(follower.currentTerm != leaderNode.currentTerm)
+        {
+            follower.currentTerm = leaderNode.currentTerm;
+            follower.leaderName = leaderNode.leaderName;
+            follower.votedFor.Add(leaderNode.votedFor.Last().Key, leaderNode.votedFor.Last().Value);
+            return true;
+        }
+        return false;
+    }
 }

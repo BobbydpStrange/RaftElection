@@ -473,6 +473,31 @@ namespace RaftElectionTest
             Assert.IsTrue(leaderNode);//returns true if the leader node is nodeE
         nodes.Clear();
     }
+    [Test]
+    public void CheckIfNodeIsUpToDateTest()
+    {
+        List<Node> nodes = new List<Node>();
+        Node nodeA = new Node(Guid.NewGuid(), "follower", true, 0, "nodeA", true);
+        Node nodeB = new Node(Guid.NewGuid(), "follower", true, 100, "nodeD", true);
+        Node nodeC = new Node(Guid.NewGuid(), "leader", true, 0, "nodeE", true);
+        nodeA.leaderName = "nodeC";
+            nodeA.currentTerm = 5;
+            nodeA.votedFor.Add(5, nodeC.nodeid);
+        nodeB.leaderName = "nodeA";//not current and uptodate
+            nodeB.currentTerm = 1;
+        nodeC.leaderName = "nodeC";
+            nodeC.currentTerm = 5;
+            nodeC.votedFor.Add(5, nodeC.nodeid);
+
+
+            nodes.Add(nodeA);
+        nodes.Add(nodeB);
+        nodes.Add(nodeC);
+        Gateway gateway = new Gateway(nodes);
+        var HadToUpdate = gateway.CompareAndSwap(nodeB, nodeC);
+        Assert.IsTrue(HadToUpdate);//returns true if the leader node is nodeE
+        nodes.Clear();
+    }
     }
 
 }
