@@ -424,5 +424,55 @@ namespace RaftElectionTest
             nodes.Clear();
             allThreads.Clear();
         }
+    [Test]
+    public void CanFindTheLeaderTest()
+    {
+        List<Node> nodes = new List<Node>();
+        Node nodeA = new Node(Guid.NewGuid(), "follower", true, 0, "nodeA", true);
+        Node nodeB = new Node(Guid.NewGuid(), "follower", true, 100, "nodeB", true);
+        Node nodeC = new Node(Guid.NewGuid(), "follower", true, 100, "nodeC", true);
+        Node nodeD = new Node(Guid.NewGuid(), "follower", true, 100, "nodeD", true);
+        Node nodeE = new Node(Guid.NewGuid(), "leader", true, 0, "nodeE", true);
+
+        nodes.Add(nodeA);
+        nodes.Add(nodeB);
+        nodes.Add(nodeC);
+        nodes.Add(nodeD);
+        nodes.Add(nodeE);
+        Gateway gateway = new Gateway(nodes);
+        var leaderNode = gateway.EventualGet();
+        Assert.AreEqual(leaderNode.state, nodes[4].state);
+        Assert.AreNotEqual(leaderNode.state, nodes[0].state);
+        Assert.AreNotEqual(leaderNode.state, nodes[1].state);
+        Assert.AreNotEqual(leaderNode.state, nodes[2].state);
+        Assert.AreNotEqual(leaderNode.state, nodes[3].state);
+        nodes.Clear();
     }
+    [Test]
+    public void CheckIfStillTheLeaderTest()
+    {
+        List<Node> nodes = new List<Node>();
+        Node nodeA = new Node(Guid.NewGuid(), "follower", true, 0, "nodeA", true);
+        Node nodeB = new Node(Guid.NewGuid(), "follower", true, 100, "nodeB", true);
+        Node nodeC = new Node(Guid.NewGuid(), "follower", true, 100, "nodeC", true);
+        Node nodeD = new Node(Guid.NewGuid(), "follower", true, 100, "nodeD", true);
+        Node nodeE = new Node(Guid.NewGuid(), "leader", true, 0, "nodeE", true);
+            nodeA.leaderName = "nodeE";
+            nodeB.leaderName = "nodeC";//not current and uptodate
+            nodeC.leaderName = "nodeC";
+            nodeD.leaderName = "nodeE";
+            nodeE.leaderName = "nodeE";
+
+            nodes.Add(nodeA);
+        nodes.Add(nodeB);
+        nodes.Add(nodeC);
+        nodes.Add(nodeD);
+        nodes.Add(nodeE);
+        Gateway gateway = new Gateway(nodes);
+        var leaderNode = gateway.StrongGet(nodeE);
+            Assert.IsTrue(leaderNode);//returns true if the leader node is nodeE
+        nodes.Clear();
+    }
+    }
+
 }

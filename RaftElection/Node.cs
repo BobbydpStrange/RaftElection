@@ -19,6 +19,7 @@ public class Node
     public int setTimer;
     public string Name;
     public bool isHealthy;
+    public string leaderName;
     public Node(Guid nodeid, string state, bool testing, int setTimer, string Name, bool isHealthy)
     {
         fileName = $"{nodeid}.log";
@@ -33,6 +34,7 @@ public class Node
         currentTerm = 0 ;
         if (!testing) { timeInterval = new Random().Next(500, 1000); }
         else { timeInterval = setTimer; }
+        leaderName = null;
         
     }
     public void HeartBeatReceived(string message)

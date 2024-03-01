@@ -43,6 +43,8 @@ public class Program
         allNodes.Add(node1);
         allNodes.Add(node2);
         allNodes.Add(node3);
+        //Gateway gateway = new Gateway(allNodes);
+
         
        allThreads = StartupThreads(allNodes);
 
