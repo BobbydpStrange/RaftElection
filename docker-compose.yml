@@ -14,7 +14,6 @@ services:
       - NODE2_LOCATION=http://node2:80
       - NODE3_LOCATION=http://node3:80
 
-
   node1:
     image: ${DOCKER_REGISTRY-}raftnodesapi
     build:
