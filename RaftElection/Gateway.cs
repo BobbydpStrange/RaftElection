@@ -9,7 +9,7 @@ namespace RaftElection;
 public class Gateway
 {
     private List<Node> allNodes;
-    private Node leaderNode;
+    public Node leaderNode;
     public Gateway(List<Node> allNodes)
     {
         this.allNodes = allNodes;

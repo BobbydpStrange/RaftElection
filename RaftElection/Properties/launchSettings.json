@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RaftElection": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+version: '3.4'
+
+services:
+  raftgateway:
+    image: ${DOCKER_REGISTRY-}raftgateway
+    build:
+      context: .
+      dockerfile: ./RaftGateway/Dockerfile
+    restart: unless-stopped
+    ports: 
+      - "8080:80"
+    environment:
+      - NODE1_LOCATION=http://node1:80
+      - NODE2_LOCATION=http://node2:80
+      - NODE3_LOCATION=http://node3:80
+
+
+  node1:
+    image: ${DOCKER_REGISTRY-}raftnodesapi
+    build:
+      context: .
+      dockerfile: ./RaftNodesAPI/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+
+
+  node2:
+    image: ${DOCKER_REGISTRY-}raftnodesapi
+    build:
+      context: .
+      dockerfile: ./RaftNodesAPI/Dockerfile
+    restart: unless-stopped
+    ports: 
+      - "8082:80"
+
+  node3:
+    image: ${DOCKER_REGISTRY-}raftnodesapi
+    build:
+      context: .
+      dockerfile: ./RaftNodesAPI/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+  

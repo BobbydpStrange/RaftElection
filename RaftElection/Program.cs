@@ -25,7 +25,6 @@ using System.Xml.Linq;
  * Replicated logs
  *      if missing entries the leader sends the missing ones with their heartbeat
  */
-
 public class Program
 {
     static void Main(string[] args)

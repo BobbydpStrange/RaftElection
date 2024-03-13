@@ -5,7 +5,13 @@ VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaftElection", "RaftElection\RaftElection.csproj", "{A327540D-739D-4FA9-8B7F-19F168E82183}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaftElectionTest", "RaftElectionTest\RaftElectionTest.csproj", "{DA11163D-95A2-40F9-99EF-B374386F57EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaftElectionTest", "RaftElectionTest\RaftElectionTest.csproj", "{DA11163D-95A2-40F9-99EF-B374386F57EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaftGateway", "RaftGateway\RaftGateway.csproj", "{F550FE36-3F2A-4D26-B3C7-C91186312F7D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaftNodesAPI", "RaftNodesAPI\RaftNodesAPI.csproj", "{5F495A96-10B4-47E5-8EA2-816D681182A5}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{798A759C-3E82-4830-ACF0-F35F459D1FC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{DA11163D-95A2-40F9-99EF-B374386F57EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA11163D-95A2-40F9-99EF-B374386F57EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA11163D-95A2-40F9-99EF-B374386F57EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F550FE36-3F2A-4D26-B3C7-C91186312F7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F550FE36-3F2A-4D26-B3C7-C91186312F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F550FE36-3F2A-4D26-B3C7-C91186312F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F550FE36-3F2A-4D26-B3C7-C91186312F7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F495A96-10B4-47E5-8EA2-816D681182A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F495A96-10B4-47E5-8EA2-816D681182A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F495A96-10B4-47E5-8EA2-816D681182A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F495A96-10B4-47E5-8EA2-816D681182A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{798A759C-3E82-4830-ACF0-F35F459D1FC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{798A759C-3E82-4830-ACF0-F35F459D1FC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{798A759C-3E82-4830-ACF0-F35F459D1FC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{798A759C-3E82-4830-ACF0-F35F459D1FC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
