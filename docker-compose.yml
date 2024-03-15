@@ -1,44 +1,30 @@
 version: '3.4'
 
 services:
+  Agateway:
+    image: ${DOCKER_REGISTRY-}gatewayapi
+    build:
+      context: .
+      dockerfile: ./GatewayAPI/Dockerfile
+    ports: 
+      - 8280:8080
+    environment:
+      - NODES_LOCATION=http://100.80.248.138:8080, http://100.112.33.3:8080, http://100.112.33.3:8080
+
   raftgateway:
     image: ${DOCKER_REGISTRY-}raftgateway
     build:
       context: .
       dockerfile: ./RaftGateway/Dockerfile
-    restart: unless-stopped
-    ports: 
-      - "8880:80"
+    
+
+  Anode1:
+    image: ${DOCKER_REGISTRY-}raftnodesapi
+    build:
+      context: .
+      dockerfile: ./RaftNodesAPI/Dockerfile
+    ports:
+      - 8282:8080
     environment:
-      - NODE1_LOCATION=http://node1:80
-      - NODE2_LOCATION=http://node2:80
-      - NODE3_LOCATION=http://node3:80
-
-  node1:
-    image: ${DOCKER_REGISTRY-}raftnodesapi
-    build:
-      context: .
-      dockerfile: ./RaftNodesAPI/Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8881:80"
-
-
-  node2:
-    image: ${DOCKER_REGISTRY-}raftnodesapi
-    build:
-      context: .
-      dockerfile: ./RaftNodesAPI/Dockerfile
-    restart: unless-stopped
-    ports: 
-      - "8882:80"
-
-  node3:
-    image: ${DOCKER_REGISTRY-}raftnodesapi
-    build:
-      context: .
-      dockerfile: ./RaftNodesAPI/Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8883:80"
-  
+      - NODES_LOCATION= http://100.112.33.3:8080, http://100.112.33.3:8080 
+    

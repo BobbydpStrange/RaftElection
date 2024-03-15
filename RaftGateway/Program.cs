@@ -1,5 +1,5 @@
-using Serilog;
-using Serilog.Exceptions;
+/*using Serilog;
+using Serilog.Exceptions;*/
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -10,13 +10,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Host.UseSerilog((context, loggerConfig) =>
+/*builder.Host.UseSerilog((context, loggerConfig) =>
 {
     loggerConfig.WriteTo.Console()
     .Enrich.WithProperty("job", "your-api-job")
     .Enrich.WithExceptionDetails();
     //.WriteTo.LokiHttp("http://loki:3100");
-});
+});*/
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,11 +27,16 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
-app.Use((context, next) =>
+/*app.Use((context, next) =>
 {
     context.Request.Scheme = "http";
     return next();
-});
+});*/
+app.UseCors(policy =>
+    policy.AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
 app.UseAuthorization();
 
 app.MapControllers();

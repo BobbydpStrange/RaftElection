@@ -21,9 +21,19 @@ public class Gateway
         if (leaderNode == null)
         {
             FindLeader();
+            //GetLeaderLog();
             if (leaderNode == null) { return null; };
         }
         return leaderNode;
+    }
+    public Tuple<string, int> GetLeaderLog()
+    {
+        var maxlength = allNodes.Count;
+        Random random = new Random();
+        int randomNode = random.Next(0, maxlength);
+        Node selectedNode = allNodes[randomNode];
+        selectedNode.history.TryGetValue("LogVersion", out Tuple<string, int> latestLogTuple);
+        return latestLogTuple;
     }
     public void FindLeader()
     {

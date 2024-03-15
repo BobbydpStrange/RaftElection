@@ -11,9 +11,9 @@ public class Node
     private string fileName;
     private int timeInterval;
     public string state;
-    private List<Tuple<int, string>> log;//term, action
+    private List<string> log;//term, action
     public Dictionary<int, Guid> votedFor;//term, id for who they votedfor
-    private Dictionary<string, Tuple<int, int>> history;// string -> term# ,log index
+    public Dictionary<string, Tuple<string, int>> history;// string -> term# ,log index
     public int currentTerm;
     public bool isTestinng;
     public int setTimer;
@@ -27,10 +27,12 @@ public class Node
         this.state = state;
         this.isTestinng = testing;
         this.isHealthy = isHealthy;
-        log = new List<Tuple<int, string>>();
+        log = new List<string>();
         votedFor = new Dictionary<int, Guid>();
-        history = new Dictionary<string, Tuple<int, int>>() {
-            { "CurrentTerm", new Tuple<int,int>(0, 0) }};
+        history = new Dictionary<string, Tuple<string, int>>() {
+            { "CurrentTerm", new Tuple<string,int>("0", 0) },
+            { "LogVersion", new Tuple<string, int>("", 0) },
+        };
         currentTerm = 0 ;
         if (!testing) { timeInterval = new Random().Next(500, 1000); }
         else { timeInterval = setTimer; }
@@ -50,7 +52,9 @@ public class Node
     private void LogInfo(string message)
     {
         //Console.WriteLine($"logging {message}");
-        //make and log to a file with the guid as the name.
+        log.Add(message);
+        int index = log.Count -1;
+        history["LogVersion"] = new Tuple<string, int>(message,index);
         using (StreamWriter sw = File.AppendText(fileName))
         {
             sw.WriteLine($"{DateTime.Now}:Term {currentTerm}  ,{message}");
@@ -87,14 +91,15 @@ public class Node
         LogInfo("Im now a Candidate lets vote!");
         LogInfo($"Voted for node: {nodeid}");
         currentTerm = currentTerm +1;
-        if (history.TryGetValue("CurrentTerm", out Tuple<int, int> termIndexTuple))
+        if (history.TryGetValue("CurrentTerm", out Tuple<string, int> termIndexTuple))
         {
             votedFor.Add(currentTerm, nodeid);
-
-            int historyCurrentTerm = termIndexTuple.Item1;
-            int historyLogIndex = termIndexTuple.Item2;
-            int index = votedFor.Count();
-            history["CurrentTerm"] = new Tuple<int, int>(currentTerm, index);
+            if(int.TryParse(termIndexTuple.Item1, out int historyCurrentTerm))
+            {
+                int historyLogIndex = termIndexTuple.Item2;
+                int index = votedFor.Count();
+                history["CurrentTerm"] = new Tuple<string, int>(currentTerm.ToString(), index);
+            }
         }
     }
     public void Leader(bool yourLeader) 
@@ -116,22 +121,24 @@ public class Node
         if(isHealthy && state == "follower")
         {
             HeartBeatReceived("New Election Vote");
-            if (history.TryGetValue("CurrentTerm", out Tuple<int,int> termIndexTuple))
+            if (history.TryGetValue("CurrentTerm", out Tuple<string,int> termIndexTuple))
             {
-                int historyCurrentTerm = termIndexTuple.Item1;
-                int historyLogIndex = termIndexTuple.Item2;
+                if (int.TryParse(termIndexTuple.Item1, out int historyCurrentTerm))
+                { 
+                    int historyLogIndex = termIndexTuple.Item2;
 
-                if (historyCurrentTerm < term && historyCurrentTerm != term)
-                {
-                    currentTerm = term;
-                    LogInfo($"Im voting for Candidate {Candidateid}.");
-                    votedFor.Add(term, Candidateid);
+                    if (historyCurrentTerm < term && historyCurrentTerm != term)
+                    {
+                        currentTerm = term;
+                        LogInfo($"Im voting for Candidate {Candidateid}.");
+                        votedFor.Add(term, Candidateid);
 
-                    int index =votedFor.Count();
-                    history["CurrentTerm"] = new Tuple<int, int>(term, index);
-                    return true;
+                        int index =votedFor.Count();
+                        history["CurrentTerm"] = new Tuple<string, int>(term.ToString(), index);
+                        return true;
+                    }
+                    else { return false; }
                 }
-                else { return false; }
             }
         }
         return false;

@@ -11,9 +11,16 @@ public class NodeController : Controller
     {
         _node = node;
     }
+
+    /* Get state
+     * post vote
+     * get leader
+     * get log?
+     */
     [HttpGet("GetResponse")]
     public async Task<bool> GetResponse()
     {
+
         return true;
     }
 

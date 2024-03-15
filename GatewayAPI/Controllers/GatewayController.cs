@@ -1,17 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RaftElection;
-using System;
 
-namespace RaftGateway.Controllers;
-[Route("apiGateway/[controller]")]
-public class GatewayController : Controller
+namespace GatewayAPI.Controllers;
+[Route("Gatewayapi/[controller]")]
+public class GatewayAPIController : Controller
 {
     private readonly Gateway _gateway;
-    private readonly ILogger<GatewayController> _logger;
+    private readonly ILogger<GatewayAPIController> _logger;
     private List<string> _nodeLocations;
 
-    public GatewayController(Gateway gateway, ILogger<GatewayController> logger)
+    public GatewayAPIController(Gateway gateway, ILogger<GatewayAPIController> logger)
     {
         _gateway = gateway;
         _logger = logger;
@@ -24,10 +22,10 @@ public class GatewayController : Controller
     {
         var leader = _gateway.EventualGet();
         if (leader != null) { return leader; }
-        else 
-        { 
+        else
+        {
             _logger.LogInformation($"Leader couldn't be found.");
-            return null; 
+            return null;
         }
     }
 
@@ -36,10 +34,10 @@ public class GatewayController : Controller
     {
         Node leader = _gateway.leaderNode;
         var isCurrentLeader = _gateway.StrongGet(leader);
-        if (isCurrentLeader) 
+        if (isCurrentLeader)
         {
             _logger.LogInformation($"The Node {leader.Name} is still the leader");
-            return true; 
+            return true;
         }
         else
         {
@@ -55,10 +53,10 @@ public class GatewayController : Controller
         try
         {
             bool swapped = _gateway.CompareAndSwap(follower, leader);
-            if (swapped) 
+            if (swapped)
             {
                 _logger.LogInformation($"Node {follower.Name} updated its information");
-                return true; 
+                return true;
             }
             else
             {
@@ -72,5 +70,4 @@ public class GatewayController : Controller
             return false;
         }
     }
-
 }
