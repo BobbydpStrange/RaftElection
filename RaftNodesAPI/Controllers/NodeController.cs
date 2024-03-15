@@ -31,7 +31,12 @@ public class NodeController : Controller
         var response = _node.Vote(term, Candidateid);
         return response;
     }
-
+    [HttpPost("PostAddLog")]
+    public async Task<bool> PostAddLog(string message)
+    {
+        _node.LogInfo(message);
+        return true;
+    }
     [HttpPost("PostElection")]
     public async Task <bool> PostElection()
     {

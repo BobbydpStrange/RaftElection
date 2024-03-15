@@ -49,7 +49,7 @@ public class Node
             LogInfo($"{message}");
         }
     }
-    private void LogInfo(string message)
+    public void LogInfo(string message)
     {
         //Console.WriteLine($"logging {message}");
         log.Add(message);
