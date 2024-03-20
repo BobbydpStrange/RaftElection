@@ -1,8 +1,12 @@
+
+using RaftElection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+//builder.Services.AddSingleton<Node>();//this will make it throw a https error.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -22,6 +26,10 @@ if (app.Environment.IsDevelopment())
     context.Request.Scheme = "http";
     return next();
 });*/
+app.UseCors(policy =>
+    policy.AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 app.UseAuthorization();
 

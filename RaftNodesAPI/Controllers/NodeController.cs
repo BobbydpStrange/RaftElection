@@ -13,6 +13,11 @@ public class NodeController : Controller
         _node = node;
         _nodeLocations = Environment.GetEnvironmentVariable("NODES_LOCATION")?.Split(", ")?.ToList();
     }
+    [HttpGet("RunNode")]
+    public async Task<bool> GetRunNode()
+    {
+        return true;
+    }
 
     [HttpGet("GetLatestLog")]
     public async Task<Tuple<string, int>> GetLatestLog()

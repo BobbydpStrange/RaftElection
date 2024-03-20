@@ -1,0 +1,78 @@
+﻿@page "/stock"
+<PageTitle>Stock Page</PageTitle>
+<h3>StockPage</h3>
+
+<form>
+    <div>
+        <label for="userName"> New Product Name:</label>
+        <input type="text" id="userName" class="form-control" @bind="newProductName" />
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="SubmitNewProductName">Create</button>
+    <div>
+        <label for="productName">Select Product:</label>
+        <select id="productName" class="form-control" @bind="selectedProduct">
+            <option value="">Select a product...</option>
+            @foreach (var product in products)
+            {
+                <option value="@product.Key">@product.Key</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label for="ProductModification">Amount:</label>
+        <input type="number" id="ProductModification" class="form-control" @bind="ProductModification" disabled="@(!productCreated || ProductModificationDisabled)" min="0" step="0.01" />
+        <div>
+            <div>
+                <input type="radio" id="deposit" name="transactionType" value="deposit" @onchange="e => selectedTransactionType = e.Value.ToString()" disabled="@(!productCreated)" />
+                <label for="deposit">Deposit</label>
+            </div>
+            <div>
+                <input type="radio" id="withdrawl" name="transactionType" value="withdrawl" @onchange="e => selectedTransactionType = e.Value.ToString()" disabled="@(!productCreated)" />
+                <label for="withdrawl">Withdrawl</label>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="SubmitTransaction" disabled="@(!productCreated || ProductModificationDisabled)"> Submit Transaction</button>
+</form>
+
+@code {
+    private Dictionary<string, int> products = new Dictionary<string, int>
+    {
+        { "Product A", 10 },
+        { "Product B", 15 },
+        { "Product C", 20 },
+        { "Product D", 20 },
+         { "Product E", 20 }
+    };
+
+    private string selectedProduct;
+    private int productModification;
+    private bool productSelected;
+    private bool productModificationDisabled;
+    private string selectedTransactionType;
+    private string NewProductName;
+
+    private void SubmitTransaction()
+    {
+        if (selectedTransactionType == "deposit")
+        {
+            products[selectedProduct] += productModification;
+            Console.WriteLine($"Deposit {productModification} to {selectedProduct}");
+        }
+        else if (selectedTransactionType == "withdrawl")
+        {
+            if (products[selectedProduct] >= productModification)
+            {
+                products[selectedProduct] -= productModification;
+                Console.WriteLine($"Withdraw {productModification} from {selectedProduct}");
+            }
+            else
+            {
+                Console.WriteLine($"Cannot withdraw {productModification} from {selectedProduct}. Insufficient stock.");
+            }
+        }
+
+        productModification = 0;
+    }
+    
+}
