@@ -4,13 +4,13 @@
 
 <form>
     <div>
-        <label for="userName"> New Product Name:</label>
-        <input type="text" id="userName" class="form-control" @bind="newProductName" />
+        <label for="newProductName"> New Product Name:</label>
+        <input type="text" id="newProductName" class="form-control" @bind="NewProductName" />
     </div>
     <button type="button" class="btn btn-primary" @onclick="SubmitNewProductName">Create</button>
     <div>
         <label for="productName">Select Product:</label>
-        <select id="productName" class="form-control" @bind="selectedProduct">
+        <select id="productName" class="form-control" @onchange="HandleProductSelection">
             <option value="">Select a product...</option>
             @foreach (var product in products)
             {
@@ -20,20 +20,24 @@
     </div>
     <div>
         <label for="ProductModification">Amount:</label>
-        <input type="number" id="ProductModification" class="form-control" @bind="ProductModification" disabled="@(!productCreated || ProductModificationDisabled)" min="0" step="0.01" />
+        <input type="number" id="ProductModification" class="form-control" @bind="ProductModification" disabled="@(!productSelected || ProductModificationDisabled)" min="0" step="1" />
         <div>
             <div>
-                <input type="radio" id="deposit" name="transactionType" value="deposit" @onchange="e => selectedTransactionType = e.Value.ToString()" disabled="@(!productCreated)" />
+                <input type="radio" id="deposit" name="transactionType" value="deposit" @onchange="e => selectedTransactionType = e.Value.ToString()" disabled="@(!productSelected)" />
                 <label for="deposit">Deposit</label>
             </div>
             <div>
-                <input type="radio" id="withdrawl" name="transactionType" value="withdrawl" @onchange="e => selectedTransactionType = e.Value.ToString()" disabled="@(!productCreated)" />
+                <input type="radio" id="withdrawl" name="transactionType" value="withdrawl" @onchange="e => selectedTransactionType = e.Value.ToString()" disabled="@(!productSelected)" />
                 <label for="withdrawl">Withdrawl</label>
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-primary" @onclick="SubmitTransaction" disabled="@(!productCreated || ProductModificationDisabled)"> Submit Transaction</button>
+    <button type="button" class="btn btn-primary" @onclick="SubmitTransaction" disabled="@(!productSelected || ProductModificationDisabled)"> Submit Transaction</button>
 </form>
+@foreach (var product in products)
+{
+    <p>@product.Key : @product.Value</p>
+}
 
 @code {
     private Dictionary<string, int> products = new Dictionary<string, int>
@@ -42,13 +46,13 @@
         { "Product B", 15 },
         { "Product C", 20 },
         { "Product D", 20 },
-         { "Product E", 20 }
+        { "Product E", 20 }
     };
 
     private string selectedProduct;
-    private int productModification;
+    private int ProductModification;
     private bool productSelected;
-    private bool productModificationDisabled;
+    private bool ProductModificationDisabled;
     private string selectedTransactionType;
     private string NewProductName;
 
@@ -56,23 +60,48 @@
     {
         if (selectedTransactionType == "deposit")
         {
-            products[selectedProduct] += productModification;
-            Console.WriteLine($"Deposit {productModification} to {selectedProduct}");
+            products[selectedProduct] += ProductModification;
+            Console.WriteLine($"Deposit {ProductModification} to {selectedProduct}");
         }
         else if (selectedTransactionType == "withdrawl")
         {
-            if (products[selectedProduct] >= productModification)
+            if (products[selectedProduct] >= ProductModification)
             {
-                products[selectedProduct] -= productModification;
-                Console.WriteLine($"Withdraw {productModification} from {selectedProduct}");
+                products[selectedProduct] -= ProductModification;
+                Console.WriteLine($"Withdraw {ProductModification} from {selectedProduct}");
             }
             else
             {
-                Console.WriteLine($"Cannot withdraw {productModification} from {selectedProduct}. Insufficient stock.");
+                Console.WriteLine($"Cannot withdraw {ProductModification} from {selectedProduct}. Insufficient stock.");
             }
         }
 
-        productModification = 0;
+        ProductModification = 0;
     }
-    
+
+    private void SubmitNewProductName()
+    {
+        if (!string.IsNullOrEmpty(NewProductName))
+        {
+            if (!products.ContainsKey(NewProductName))
+            {
+                products.Add(NewProductName, 0);
+                Console.WriteLine($"New product '{NewProductName}' created.");
+            }
+            else
+            {
+                Console.WriteLine($"Product '{NewProductName}' already exists.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Please enter a product name.");
+        }
+    }
+    private void HandleProductSelection(ChangeEventArgs args)
+    {
+        selectedProduct = args.Value.ToString();
+        productSelected = !string.IsNullOrEmpty(selectedProduct);
+    }
+
 }
