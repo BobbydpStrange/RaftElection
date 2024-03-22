@@ -1,0 +1,43 @@
+﻿@page "/pendingOrders"
+<PageTitle>Pending Order</PageTitle>
+<h3>Pending Orders</h3>
+
+@foreach(var order in PendingOrders)
+{
+    <div class="border col p-2 m-2">
+        <div class="row mx-1">
+            <h5 class="col ">ID: @order.OrderID</h5>
+            <h6 class="col col-4 p-0">Status: @order.Status</h6>
+        </div>
+        <div class ="row mx-1">
+            <p class="col">User: @order.User</p>
+            <button type="button" class="btn btn-primary col-4" @onclick="() => ProcessOrder(order)" >Process Order</button>
+        </div>
+        <hr>
+        @foreach(var item in @order.Products)
+        {
+            <p>@item</p>
+        }
+
+    </div>
+    
+}
+@code {
+    public class Order
+    {
+        public string OrderID { get; set; }
+        public string User { get; set; }
+        public List<string> Products { get; set; }
+        public string Status { get; set; }
+    }
+
+    private List<Order> PendingOrders = new List<Order>
+    {
+        new Order { OrderID = "0001", User = "Tom", Products = new List<string> { "Product A", "Product B" }, Status = "Pending" },
+        new Order { OrderID = "0002", User = "Toby", Products = new List<string> { "Product C", "Product D", "Product E" }, Status = "Pending" }
+    };
+    private void ProcessOrder(Order order)
+    {
+        PendingOrders.Remove(order);
+    }
+}

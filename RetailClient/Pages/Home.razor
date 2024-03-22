@@ -6,8 +6,146 @@
 
 <h5>
     Welcome to the store.
-
 </h5>
+
+<form>
+    <div class="row">
+        <div class="col">
+            <label for="userName"> User Name:</label>
+            <input type="text" id="userName" class="form-control" @bind="userName" />
+        </div>
+        <div class="col py-4">
+            <button type="button" class="btn btn-primary" @onclick="SubmitUsername">Set Username</button>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-5">
+            <label for="productName">Select Product:</label>
+            <select id="productName" class="form-control" @onchange="HandleProductSelection" disabled="@(!hasUserName)">
+                <option value="">Select a product...</option>
+                @foreach (var product in products)
+                {
+                    <option value="@product.Key">@product.Key</option>
+                }
+            </select>
+        </div>
+            <div class="col col-3">
+                <label for="ProductModification">Amount:</label>
+                <input type="number" id="ProductModification" class="form-control" @bind="ProductModification" disabled="@(!productSelected || ProductModificationDisabled)" min="0" step="1" />
+            </div>
+        <div class="col my-4">
+            <button type="button" class="btn btn-primary" @onclick="SubmitTransaction" disabled="@(!productSelected || ProductModificationDisabled)">Add to Cart</button>
+        </div>
+    </div>
+</form>
+<hr />
+<div class="row">
+    <div class="col">
+        @foreach (var (product, index) in Order.Select((value,i) => (value, i)))
+        {
+            if(index != 0)
+            {
+                <div class="row">
+                    <p class="col col">@product</p>
+                    <div class="col col-3">
+                        <button type="button" class="btn btn-danger" @onclick="() => RemoveProduct(index)" disabled="@(!productSelected || ProductModificationDisabled)">Delete</button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <p>User: @product</p>
+                </div>
+            }
+        }
+    </div>
+    <div class="col col-4">
+        <button type="button" class="btn btn-success" @onclick="CompleteOrder"  disabled="@(!hasOrder)">Complete Order</button>
+    </div>
+</div>
+
 @code {
-    //can use this page to display the products.
+    private Dictionary<string, int> products = new Dictionary<string, int>
+    {
+        { "Product A", 10 },
+        { "Product B", 15 },
+        { "Product C", 20 },
+        { "Product D", 20 },
+        { "Product E", 20 }
+    };
+    private List<string> Order = new List<string>();
+    private string userName;
+    private bool hasUserName = false;
+    private string selectedProduct;
+    private int ProductModification;
+    private bool productSelected;
+    private bool ProductModificationDisabled;
+    private string selectedTransactionType;
+    private string NewProductName;
+    private bool hasOrder = false;
+
+    private void SubmitTransaction()
+    {
+        selectedTransactionType = "deposit";
+        for(int i = 0; i < ProductModification; i++)
+        {
+            Order.Add(selectedProduct);
+        }
+        CheckOrder();
+
+    }
+
+    private void RemoveProduct(int index)
+    {
+        selectedTransactionType = "withdrawl";
+        Order.RemoveAt(index);
+        CheckOrder();
+
+    }
+
+    private void HandleProductSelection(ChangeEventArgs args)
+    {
+        selectedProduct = args.Value.ToString();
+        productSelected = !string.IsNullOrEmpty(selectedProduct);
+    }
+
+    private void SubmitUsername()
+    {
+        //clear cart, complete order, 
+        if (userName != null)
+        {
+            Order = new List<string>();
+            Order.Add(userName);
+            hasUserName = true;
+            selectedProduct = null;
+            productSelected = false;
+            ProductModification = 0;
+            hasOrder = false;
+        }
+    }
+    private void CompleteOrder()
+    {
+        //send order to api and put on processing stack
+        //api increment orders
+        Order.Add("0000");
+        Order.Add("Pending");
+        //once sent clear fields on the page and order list.
+        Order = new List<string>();
+        userName = null;
+        selectedProduct = null;
+        productSelected = false;
+        ProductModification = 0;
+        ProductModificationDisabled = true;
+    }
+    private void CheckOrder()
+    {
+        if(Order.Count-1 > 0)
+        {
+            hasOrder = true;
+        }
+        else{ hasOrder = false; }
+    }
+
 }

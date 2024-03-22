@@ -15,7 +15,7 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GatewayAPI", "GatewayAPI\GatewayAPI.csproj", "{7961AA72-AF10-48E5-BB48-EB77D4039DE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailClient", "RetailClient\RetailClient.csproj", "{44126EAE-47A3-44E9-8A2E-22BC5AEC8143}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RetailClient", "RetailClient\RetailClient.csproj", "{44126EAE-47A3-44E9-8A2E-22BC5AEC8143}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
