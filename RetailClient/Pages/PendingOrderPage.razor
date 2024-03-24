@@ -42,13 +42,22 @@
         {
             var httpClient = new HttpClient();
             bool isSuccessful = true;
+            var logMessages = new List<string>();
+
             var apiUrl = "http://100.80.248.138:8280";
             var endpoint = $"{apiUrl}/GatewayapiGatewayAPI/SendLog";
 
-            var logMessage = $"Processing order {order.OrderID} for {order.User}";
-            var response = await httpClient.PostAsync(endpoint, logMessage);
-            if(!response.IsSuccessStatusCode){isSuccessful = false;}
+            var logMessages.Add($"Processing order {order.OrderID} for {order.User}");
+            foreach (var product in order.Products)
+            {
+                logMessages.Add($"Processing product {product} for order {order.OrderID}");
+                //delete from balance and stock if can't do then cancel.
 
+            }
+            var response = await httpClient.PostAsync(endpoint, logMessages);
+
+            if(!response.IsSuccessStatusCode){isSuccessful = false;}
+            
         }
     if()
         PendingOrders.Remove(order);
