@@ -70,4 +70,31 @@ public class GatewayAPIController : Controller
             return false;
         }
     }
+    [HttpGet("RunGateway")]
+    public async Task<bool> GetRunGateway()
+    {
+        return true;
+    }
+    [HttpPost("SendLog")]
+    public async Task<bool> PostSendLog(string logMessage)
+    {
+        try
+        {
+            var httpClient = new HttpClient();
+            foreach (var nodeLocation in _nodeLocations)
+            {
+                var requestUrl = $"{nodeLocation}/apiNode/Node/PostAddLog";
+                var content = new StringContent(logMessage);
+                var response = new httpClient.PostAsync(requestUrl, content);
+
+                if(!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError($"Failed to send log to node");
+                }
+            }
+            return true;
+        }catch(Exception ex) { _logger.LogError($"An Error occured");
+            return false;
+        }
+    }
 }
